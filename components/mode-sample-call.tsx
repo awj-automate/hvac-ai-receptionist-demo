@@ -9,122 +9,187 @@ import { CallSummary } from "@/components/call-summary";
 import { TranscriptView } from "@/components/transcript-view";
 import { Button } from "@/components/ui/button";
 import {
+  lineAudioSrc,
   SAMPLE_CALL,
-  SAMPLE_CALL_DURATION,
   SAMPLE_CALL_SUMMARY,
 } from "@/lib/sample-call";
 import type { TranscriptUtterance } from "@/lib/types";
 import { formatClock } from "@/lib/utils";
 
-// Average characters revealed per second while a line "types out".
-const SECONDS_PER_CHAR = 0.04;
-// Clock granularity — 20 ticks/sec keeps the typing animation smooth.
-const TICK_MS = 50;
+const TOTAL = SAMPLE_CALL.length;
+
+/** Reading-time used to type a line out when its audio clip is unavailable. */
+const fallbackDur = (text: string) => Math.max(1.8, text.length * 0.055);
 
 /**
- * Builds the visible transcript for a given playback position. Lines before the
- * current one are fully shown; the current line types out over its time window.
+ * Mode 2 — plays the sample call as a sequence of per-line voiced clips
+ * (public/audio/lines/), typing each transcript line in sync. If a clip is
+ * missing (e.g. audio wasn't generated), that line falls back to a timed
+ * type-out so the walkthrough still flows.
  */
-function buildTranscript(elapsed: number): {
-  utterances: TranscriptUtterance[];
-  typing: boolean;
-  agentSpeaking: boolean;
-} {
-  const visible = SAMPLE_CALL.filter((line) => elapsed >= line.at);
-  if (visible.length === 0) {
-    return { utterances: [], typing: false, agentSpeaking: false };
-  }
-  const idx = visible.length - 1;
-  const current = SAMPLE_CALL[idx];
-  const nextAt = SAMPLE_CALL[idx + 1]?.at ?? SAMPLE_CALL_DURATION;
-  const window = Math.min(
-    nextAt - current.at,
-    current.content.length * SECONDS_PER_CHAR
-  );
-  const fraction = window > 0 ? Math.min(1, (elapsed - current.at) / window) : 1;
-  const chars = Math.round(fraction * current.content.length);
-
-  const utterances = visible.map((line, i) => ({
-    role: line.role,
-    content: i < idx ? line.content : line.content.slice(0, chars),
-  }));
-
-  return {
-    utterances,
-    typing: fraction < 1,
-    agentSpeaking: current.role === "agent" && fraction < 1,
-  };
-}
-
 export function ModeSampleCall({ onHome }: { onHome: () => void }) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const lastTsRef = useRef(0);
+  const idxRef = useRef(0);
+  const completedRef = useRef(0); // seconds of all finished lines
+  const doneRef = useRef(false);
+  const fbRef = useRef({ active: false, elapsed: 0, dur: 0 });
 
+  const [lineIndex, setLineIndex] = useState(0);
+  const [lineProgress, setLineProgress] = useState(0); // 0..1 of current line
   const [elapsed, setElapsed] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [started, setStarted] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
-  const stopClock = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+  const stopRaf = useCallback(() => {
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    lastTsRef.current = 0;
+  }, []);
+
+  /** Point the audio element at a line's clip; warm the next one. */
+  const playLine = useCallback((index: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    fbRef.current = { active: false, elapsed: 0, dur: 0 };
+    audio.src = lineAudioSrc(index);
+    audio.currentTime = 0;
+    setLineProgress(0);
+    audio.play().catch(() => {
+      // Clip missing / autoplay blocked → time this line out instead.
+      if (!fbRef.current.active) {
+        fbRef.current = {
+          active: true,
+          elapsed: 0,
+          dur: fallbackDur(SAMPLE_CALL[index].content),
+        };
+      }
+    });
+    if (index + 1 < TOTAL) {
+      const warm = new Audio();
+      warm.preload = "auto";
+      warm.src = lineAudioSrc(index + 1);
     }
   }, []);
 
-  const startClock = useCallback(() => {
-    stopClock();
-    intervalRef.current = setInterval(() => {
-      setElapsed((e) => Math.min(e + TICK_MS / 1000, SAMPLE_CALL_DURATION));
-    }, TICK_MS);
-  }, [stopClock]);
+  /** Move to the next line, or finish the call. */
+  const advance = useCallback(
+    (addSeconds: number) => {
+      completedRef.current += addSeconds;
+      const next = idxRef.current + 1;
+      if (next >= TOTAL) {
+        doneRef.current = true;
+        stopRaf();
+        setPlaying(false);
+        setLineProgress(1);
+        audioRef.current?.pause();
+        window.setTimeout(() => setShowSummary(true), 900);
+        return;
+      }
+      idxRef.current = next;
+      setLineIndex(next);
+      playLine(next);
+    },
+    [playLine, stopRaf]
+  );
 
-  useEffect(() => stopClock, [stopClock]);
+  const tick = useCallback(
+    (ts: number) => {
+      const audio = audioRef.current;
+      const fb = fbRef.current;
+      const dt = lastTsRef.current ? (ts - lastTsRef.current) / 1000 : 0;
+      lastTsRef.current = ts;
 
-  // Reaching the end of the recording transitions to the summary.
-  useEffect(() => {
-    if (started && !showSummary && elapsed >= SAMPLE_CALL_DURATION) {
-      stopClock();
-      setPlaying(false);
-      audioRef.current?.pause();
-      const t = setTimeout(() => setShowSummary(true), 900);
-      return () => clearTimeout(t);
-    }
-  }, [elapsed, started, showSummary, stopClock]);
+      if (fb.active) {
+        fb.elapsed += dt;
+        const frac = fb.dur > 0 ? Math.min(1, fb.elapsed / fb.dur) : 1;
+        setLineProgress(frac);
+        setElapsed(completedRef.current + Math.min(fb.elapsed, fb.dur));
+        if (frac >= 1) advance(fb.dur);
+      } else if (audio) {
+        const dur = audio.duration;
+        const cur = audio.currentTime || 0;
+        if (Number.isFinite(dur) && dur > 0) {
+          setLineProgress(Math.min(1, cur / dur));
+        }
+        setElapsed(completedRef.current + cur);
+      }
+
+      if (!doneRef.current) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    },
+    [advance]
+  );
+
+  // Clean up the animation frame on unmount.
+  useEffect(() => stopRaf, [stopRaf]);
 
   const handlePlay = () => {
-    setStarted(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!started) {
+      setStarted(true);
+      doneRef.current = false;
+      idxRef.current = 0;
+      completedRef.current = 0;
+      fbRef.current = { active: false, elapsed: 0, dur: 0 };
+      setLineIndex(0);
+      playLine(0);
+    } else if (!fbRef.current.active) {
+      audio.play().catch(() => {});
+    }
     setPlaying(true);
-    startClock();
-    // The placeholder audio is silent; transcript timing is driven by the
-    // clock above so playback works with or without a voiced recording.
-    audioRef.current?.play().catch(() => {});
+    stopRaf();
+    rafRef.current = requestAnimationFrame(tick);
   };
 
   const handlePause = () => {
-    setPlaying(false);
-    stopClock();
     audioRef.current?.pause();
+    setPlaying(false);
+    stopRaf();
   };
 
   const handleRestart = () => {
-    stopClock();
-    if (audioRef.current) audioRef.current.currentTime = 0;
+    stopRaf();
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute("src");
+    }
+    doneRef.current = false;
+    idxRef.current = 0;
+    completedRef.current = 0;
+    fbRef.current = { active: false, elapsed: 0, dur: 0 };
+    setLineIndex(0);
+    setLineProgress(0);
     setElapsed(0);
     setPlaying(false);
     setStarted(false);
     setShowSummary(false);
   };
 
-  const { utterances, typing, agentSpeaking } = useMemo(
-    () => buildTranscript(elapsed),
-    [elapsed]
-  );
+  const { utterances, typing } = useMemo(() => {
+    const out: TranscriptUtterance[] = [];
+    for (let i = 0; i <= lineIndex && i < TOTAL; i++) {
+      const line = SAMPLE_CALL[i];
+      if (i < lineIndex) {
+        out.push(line);
+      } else {
+        const chars = Math.round(lineProgress * line.content.length);
+        out.push({ role: line.role, content: line.content.slice(0, chars) });
+      }
+    }
+    return { utterances: out, typing: lineProgress < 1 };
+  }, [lineIndex, lineProgress]);
 
-  const progress = Math.min(100, (elapsed / SAMPLE_CALL_DURATION) * 100);
+  const currentRole = SAMPLE_CALL[lineIndex]?.role;
+  const progress = Math.min(100, ((lineIndex + lineProgress) / TOTAL) * 100);
   const orbState = !playing
     ? "idle"
-    : agentSpeaking
+    : currentRole === "agent"
       ? "speaking"
       : "listening";
 
@@ -142,8 +207,28 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      {/* Hidden audio element — swap the file for a real recording later. */}
-      <audio ref={audioRef} src="/audio/sample-call.mp3" preload="auto" />
+      {/* One audio element, re-pointed at each line's clip in sequence. */}
+      <audio
+        ref={audioRef}
+        preload="auto"
+        onEnded={() => {
+          if (fbRef.current.active) return;
+          const audio = audioRef.current;
+          advance(
+            audio && Number.isFinite(audio.duration) ? audio.duration : 0
+          );
+        }}
+        onError={() => {
+          // Missing clip → time this line out instead of stalling.
+          if (started && !fbRef.current.active) {
+            fbRef.current = {
+              active: true,
+              elapsed: 0,
+              dur: fallbackDur(SAMPLE_CALL[idxRef.current].content),
+            };
+          }
+        }}
+      />
 
       <div className="mb-6 text-center">
         <div className="sub-title mx-auto mb-4">
@@ -167,7 +252,7 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
               !started
                 ? "Press play to start"
                 : playing
-                  ? agentSpeaking
+                  ? currentRole === "agent"
                     ? "Sarah is speaking"
                     : "Caller is speaking"
                   : "Paused"
@@ -180,8 +265,8 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
             <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
               <CirclePlay className="h-12 w-12 text-ds-primary" />
               <p className="max-w-xs font-jakarta text-sm text-ds-muted">
-                This is a pre-recorded example. The transcript types out in sync
-                as the call plays.
+                A real, voiced example call. Press play — the transcript types
+                out in sync with each line.
               </p>
             </div>
           ) : (
@@ -215,11 +300,11 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
                   background: "linear-gradient(90deg, #E5C463, #8C6F1E)",
                 }}
                 animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.1, ease: "linear" }}
+                transition={{ duration: 0.15, ease: "linear" }}
               />
             </div>
-            <span className="w-20 text-right font-mono text-xs tabular-nums text-ds-muted">
-              {formatClock(elapsed)} / {formatClock(SAMPLE_CALL_DURATION)}
+            <span className="w-24 text-right font-mono text-xs tabular-nums text-ds-muted">
+              {formatClock(elapsed)} · {Math.min(lineIndex + 1, TOTAL)}/{TOTAL}
             </span>
           </div>
         </div>

@@ -45,7 +45,7 @@ agent — see below.
 | ------------------ | -------------------- | ------------------------------------------------ |
 | `RETELL_API_KEY`   | Mode 1 (live call)   | From the Retell dashboard.                       |
 | `RETELL_AGENT_ID`  | Mode 1 (live call)   | The `agent_id` of the Sarah agent you create.    |
-| `OPENAI_API_KEY`   | Mode 1 call summary  | Used to extract structured data from a call.     |
+| `OPENAI_API_KEY`   | Summary + sample audio | Mode 1 call-summary extraction; build-time Mode 2 voice generation. |
 
 If `RETELL_API_KEY` / `RETELL_AGENT_ID` are missing, Mode 1 is disabled and a
 setup banner is shown — Modes 2 and 3 stay fully functional. If `OPENAI_API_KEY`
@@ -117,13 +117,20 @@ the brand name in `components/demo-app.tsx`, and the sample-call script in
 
 ## Sample call audio
 
-`public/audio/sample-call.mp3` is a generated **silent placeholder** (~100s) so
-Mode 2 works out of the box. To use a real recording:
+The Mode 2 sample call is voiced with one OpenAI-TTS clip per line. Generation
+runs **at build time** — `scripts/generate-sample-audio.mjs` is chained into the
+`build` script and reads `OPENAI_API_KEY` from the environment, so no local
+setup is needed: just set the key in your Vercel project.
 
-1. Render the voiced call (e.g. with ElevenLabs) and replace the MP3.
-2. Re-time the line offsets in `lib/sample-call.ts` to match the audio.
+- With the key set, each deploy renders the 18 clips into `public/audio/lines/`
+  (Sarah and the caller use different voices).
+- Without it, generation is skipped and Mode 2 falls back to a silent typed
+  walkthrough — the build never fails.
+- The call text lives in `lib/sample-call-script.json`.
 
-The placeholder can be regenerated with `node scripts/generate-silent-mp3.mjs`.
+To avoid regenerating on every deploy, render the clips once locally
+(`OPENAI_API_KEY=sk-... node scripts/generate-sample-audio.mjs`) and commit
+`public/audio/lines/` — the script skips when the clips already exist.
 
 ## Deployment (Vercel)
 

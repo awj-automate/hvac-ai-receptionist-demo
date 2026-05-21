@@ -18,12 +18,6 @@ export interface TranscriptUtterance {
   content: string;
 }
 
-/** A scripted transcript line for the Mode 2 sample call. */
-export interface SampleLine extends TranscriptUtterance {
-  /** Seconds into the recording when this line begins. */
-  at: number;
-}
-
 /** Structured data extracted from a completed call. */
 export interface CallSummary {
   customerName: string;

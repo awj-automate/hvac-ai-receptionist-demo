@@ -1,0 +1,20 @@
+[
+  { "role": "agent", "content": "Apex Heating and Air, this is Sarah, how can I help you today?" },
+  { "role": "user", "content": "Hi, my AC's been running all morning but the house just won't cool down. It's 81 degrees in here." },
+  { "role": "agent", "content": "Oh no, that's miserable in this heat. Is the system blowing air at all, or completely not working?" },
+  { "role": "user", "content": "It's blowing, but the air isn't cold. Feels close to room temperature." },
+  { "role": "agent", "content": "Got it. That usually points to a refrigerant or compressor issue. Roughly how old is the system?" },
+  { "role": "user", "content": "I think about eight years? It came with the house." },
+  { "role": "agent", "content": "Okay, eight years. And is this a central AC unit?" },
+  { "role": "user", "content": "Yeah, central air. There's the big unit outside." },
+  { "role": "agent", "content": "Perfect. Have we serviced your system before, or is this your first time with us?" },
+  { "role": "user", "content": "First time. I just found you online." },
+  { "role": "agent", "content": "Happy to help. I can get a tech out today between 2 and 5 PM, or tomorrow 8 to 11 AM. Which works better?" },
+  { "role": "user", "content": "Today would be amazing, it's really hot in here." },
+  { "role": "agent", "content": "You got it. Today, 2 to 5. Can I grab your name and the service address?" },
+  { "role": "user", "content": "It's Mike Reynolds, 4412 Bayshore Boulevard, Tampa." },
+  { "role": "agent", "content": "Thanks Mike. And the best phone number to reach you?" },
+  { "role": "user", "content": "It's 813, 555, 0142." },
+  { "role": "agent", "content": "Perfect, you're all set. Our diagnostic fee is 89 dollars, and the tech will give you a full estimate on-site. He'll text you 30 minutes before he arrives. Thanks for calling Apex, Mike!" },
+  { "role": "user", "content": "Great, thank you so much!" }
+]
