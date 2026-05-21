@@ -23,19 +23,18 @@ export function TranscriptView({
   const endRef = useRef<HTMLDivElement>(null);
   const lastLine = utterances[utterances.length - 1];
 
-  // Keep the newest line in view as the transcript grows.
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [utterances.length, lastLine?.content]);
 
   return (
-    <div className="scroll-thin h-full overflow-y-auto px-1">
+    <div className="h-full overflow-y-auto px-1">
       {utterances.length === 0 ? (
         <div className="flex h-full min-h-[200px] items-center justify-center">
-          <p className="text-sm text-white/35">{emptyHint}</p>
+          <p className="font-jakarta text-sm text-ds-subtle">{emptyHint}</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 py-2">
+        <div className="flex flex-col gap-3.5 py-2">
           <AnimatePresence initial={false}>
             {utterances.map((u, i) => {
               const isAgent = u.role === "agent";
@@ -48,16 +47,24 @@ export function TranscriptView({
                   transition={{ duration: 0.25 }}
                   className={cn(
                     "flex items-end gap-2.5",
-                    isAgent ? "justify-start" : "flex-row-reverse justify-start"
+                    isAgent ? "justify-start" : "flex-row-reverse"
                   )}
                 >
                   <div
                     className={cn(
                       "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
                       isAgent
-                        ? "bg-gradient-to-br from-ember-500 to-ember-700 text-white"
-                        : "bg-ink-700 text-white/70"
+                        ? "text-white"
+                        : "border border-black/[0.06] bg-white text-ds-muted"
                     )}
+                    style={
+                      isAgent
+                        ? {
+                            background:
+                              "radial-gradient(50% 58% at 50% 95%, #E5C463, #C9A227)",
+                          }
+                        : undefined
+                    }
                   >
                     {isAgent ? (
                       <Headset className="h-4 w-4" />
@@ -67,18 +74,35 @@ export function TranscriptView({
                   </div>
                   <div
                     className={cn(
-                      "max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                      "max-w-[78%] rounded-2xl px-4 py-2.5",
                       isAgent
-                        ? "rounded-bl-sm bg-ink-750 text-white/90"
-                        : "rounded-br-sm bg-ember-700/25 text-ember-50"
+                        ? "rounded-bl-sm border border-black/[0.06] bg-white shadow-sm"
+                        : "rounded-br-sm text-white shadow-sm"
                     )}
+                    style={
+                      isAgent
+                        ? undefined
+                        : {
+                            background:
+                              "linear-gradient(135deg, #C9A227, #8C6F1E)",
+                          }
+                    }
                   >
-                    <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/40">
+                    <p
+                      className={cn(
+                        "mb-0.5 font-jakarta text-[10px] font-bold uppercase tracking-[0.12em]",
+                        isAgent ? "text-ds-primary-dark" : "text-white/75"
+                      )}
+                    >
                       {isAgent ? "Sarah · Apex Heating & Air" : "Caller"}
                     </p>
                     <span
                       className={cn(
-                        typingLastLine && isLast && u.content ? "caret" : ""
+                        "font-jakarta text-sm leading-relaxed",
+                        isAgent ? "text-ds-text" : "text-white",
+                        typingLastLine && isLast && u.content
+                          ? "type-caret"
+                          : ""
                       )}
                     >
                       {u.content}

@@ -1,56 +1,40 @@
 "use client";
 
+import { ParticleField } from "@/components/particle-field";
+
 /**
- * Decorative full-bleed background: slow "heat glow" blobs plus particles
- * drifting upward to suggest airflow from an HVAC vent. Purely visual.
- *
- * Particle parameters are derived deterministically from the index so server
- * and client render identically (no hydration mismatch).
+ * Full-bleed page background: warm cream base, slow gold "heat glow"
+ * blobs, and a drifting particle field. Purely decorative.
  */
-
-const PARTICLES = Array.from({ length: 22 }, (_, i) => ({
-  left: (i * 47 + 7) % 100,
-  size: 2 + (i % 4),
-  duration: 16 + (i % 7) * 4,
-  delay: -((i * 2.3) % 20),
-  opacity: 0.12 + (i % 5) * 0.05,
-}));
-
 export function AirflowBackground() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-ink-950"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-ds-bg"
     >
-      {/* Heat-glow blobs */}
-      <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-ember-700/20 blur-[120px]" />
-      <div className="absolute top-1/3 -right-32 h-[32rem] w-[32rem] rounded-full bg-ember-500/10 blur-[140px]" />
-      <div className="absolute -bottom-40 left-1/3 h-[26rem] w-[26rem] rounded-full bg-ember-600/10 blur-[130px]" />
-
-      {/* Subtle grid */}
+      {/* Gold heat-glow blobs */}
       <div
-        className="absolute inset-0 opacity-[0.035]"
+        className="blob absolute -top-40 right-[5%] h-[34rem] w-[34rem]"
         style={{
-          backgroundImage:
-            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          background: "linear-gradient(96deg, #C9A227, #E5C463)",
+          filter: "blur(120px)",
+          opacity: 0.16,
+        }}
+      />
+      <div
+        className="blob absolute bottom-[2%] left-[1%] h-[26rem] w-[26rem]"
+        style={{
+          background: "linear-gradient(96deg, #8C6F1E, #D4AF37)",
+          filter: "blur(110px)",
+          opacity: 0.1,
+          animationDelay: "3s",
         }}
       />
 
-      {/* Rising airflow particles */}
-      {PARTICLES.map((p, i) => (
-        <span
-          key={i}
-          className="absolute bottom-[-5vh] rounded-full bg-ember-400"
-          style={{
-            left: `${p.left}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            opacity: p.opacity,
-            animation: `float-up ${p.duration}s linear ${p.delay}s infinite`,
-          }}
-        />
-      ))}
+      {/* Drifting particles */}
+      <div className="absolute inset-0">
+        <ParticleField density={1} />
+      </div>
     </div>
   );
 }

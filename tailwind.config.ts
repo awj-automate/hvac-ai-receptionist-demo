@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
+/* Design system ported 1:1 from datastaq-hvac (DataStaq AI). */
 const config: Config = {
-  darkMode: "class",
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,55 +9,113 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-jakarta)", "sans-serif"],
+        jakarta: ["var(--font-jakarta)", "sans-serif"],
+        syne: ["var(--font-jakarta)", "sans-serif"],
       },
       colors: {
-        // Deep navy / charcoal surfaces
-        ink: {
-          950: "#0a0a1a",
-          900: "#0d0d1f",
-          850: "#111126",
-          800: "#16162e",
-          750: "#1c1c38",
-          700: "#242444",
-          600: "#323256",
-        },
-        // HVAC "heat" accent — orange to red
-        ember: {
-          300: "#ffb27a",
-          400: "#ff9d4d",
-          500: "#ff7a18",
-          600: "#f9542d",
-          700: "#e1341e",
+        ds: {
+          bg: "#F5F0E1",
+          surface: "#FAF6EA",
+          card: "#FFFFFF",
+          border: "rgba(0,0,0,0.15)",
+          primary: "#C9A227",
+          "primary-light": "#E5C463",
+          "primary-dark": "#8C6F1E",
+          "primary-glow": "#D4AF37",
+          heading: "#09090B",
+          text: "#3F3F46",
+          muted: "#71717A",
+          subtle: "#A1A1AA",
+          success: "#22A559",
         },
       },
-      boxShadow: {
-        ember: "0 0 40px -8px rgba(249, 84, 45, 0.45)",
-        "ember-lg": "0 0 80px -12px rgba(249, 84, 45, 0.55)",
+      letterSpacing: {
+        heading: "-0.04em",
+        "heading-tight": "-0.05em",
+        "body-tight": "-0.02em",
       },
-      keyframes: {
-        "pulse-ring": {
-          "0%": { transform: "scale(0.85)", opacity: "0.7" },
-          "80%, 100%": { transform: "scale(1.6)", opacity: "0" },
-        },
-        "float-up": {
-          "0%": { transform: "translateY(0)", opacity: "0" },
-          "10%, 90%": { opacity: "0.5" },
-          "100%": { transform: "translateY(-110vh)", opacity: "0" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
+      borderRadius: {
+        card: "24px",
+        button: "100px",
+      },
+      maxWidth: {
+        content: "1356px",
       },
       animation: {
-        "pulse-ring": "pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        shimmer: "shimmer 2.4s linear infinite",
-        "fade-in": "fade-in 0.4s ease-out both",
+        float: "float 7s ease-in-out infinite",
+        "float-slow": "floatSlow 9s ease-in-out infinite",
+        "float-reverse": "floatReverse 8s ease-in-out infinite",
+        "float-diagonal": "floatDiagonal 11s ease-in-out infinite",
+        shine: "shine 0.75s cubic-bezier(0.01,0.56,1,1)",
+        "blur-in": "blurAnimate 0.5s cubic-bezier(0.01,0.56,1,1) forwards",
+        "border-rotate": "borderRotate 5s linear infinite",
+        "gradient-shift": "gradientShift 3s ease infinite",
+        "gradient-flow": "gradientShift 6s ease infinite",
+        "spin-slow": "spin 22s linear infinite",
+        "spin-slower": "spin 40s linear infinite",
+        aurora: "aurora 18s ease infinite",
+        twinkle: "twinkle 4s ease-in-out infinite",
+        "pulse-ring": "pulseRing 2.5s ease-out infinite",
+        "pulse-glow": "pulseGlow 3s ease-in-out infinite",
+        blob: "morphBlob 8s ease-in-out infinite",
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        floatSlow: {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-16px) rotate(2deg)" },
+        },
+        floatReverse: {
+          "0%, 100%": { transform: "translateY(-8px) rotate(0deg)" },
+          "50%": { transform: "translateY(8px) rotate(-1.5deg)" },
+        },
+        floatDiagonal: {
+          "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
+          "33%": { transform: "translate(8px, -12px) rotate(1deg)" },
+          "66%": { transform: "translate(-6px, -6px) rotate(-1deg)" },
+        },
+        shine: {
+          "0%": { left: "150%" },
+          "100%": { left: "-200%" },
+        },
+        blurAnimate: {
+          from: { opacity: "0", filter: "blur(10px)" },
+          to: { opacity: "1", filter: "blur(0px)" },
+        },
+        borderRotate: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "300% 50%" },
+        },
+        gradientShift: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        aurora: {
+          "0%, 100%": { backgroundPosition: "0% 50%", filter: "hue-rotate(0deg)" },
+          "50%": { backgroundPosition: "100% 50%", filter: "hue-rotate(12deg)" },
+        },
+        twinkle: {
+          "0%, 100%": { opacity: "0.15", transform: "scale(0.85)" },
+          "50%": { opacity: "0.7", transform: "scale(1.15)" },
+        },
+        pulseRing: {
+          "0%": { transform: "scale(1)", opacity: "0.6" },
+          "100%": { transform: "scale(2.4)", opacity: "0" },
+        },
+        pulseGlow: {
+          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
+          "50%": { opacity: "0.9", transform: "scale(1.06)" },
+        },
+        morphBlob: {
+          "0%, 100%": { borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%" },
+          "25%": { borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%" },
+          "50%": { borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%" },
+          "75%": { borderRadius: "60% 30% 60% 40% / 60% 40% 30% 70%" },
+        },
       },
     },
   },

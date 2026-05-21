@@ -9,9 +9,9 @@ export function MobileNotice() {
   if (dismissed) return null;
 
   return (
-    <div className="mb-6 flex items-start gap-3 rounded-xl border border-ember-500/30 bg-ember-700/10 px-4 py-3 text-sm text-ember-200 md:hidden">
+    <div className="mb-6 flex items-start gap-3 rounded-2xl border border-ds-primary/25 bg-ds-primary/[0.08] px-4 py-3 text-sm text-ds-primary-dark md:hidden">
       <Monitor className="mt-0.5 h-4 w-4 shrink-0" />
-      <p className="flex-1">
+      <p className="flex-1 font-jakarta">
         This demo runs on mobile, but it&apos;s best experienced on a desktop
         browser with a microphone.
       </p>
@@ -19,7 +19,7 @@ export function MobileNotice() {
         type="button"
         aria-label="Dismiss notice"
         onClick={() => setDismissed(true)}
-        className="text-ember-200/70 hover:text-white"
+        className="text-ds-primary-dark/60 transition-colors hover:text-ds-heading"
       >
         <X className="h-4 w-4" />
       </button>

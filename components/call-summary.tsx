@@ -30,6 +30,8 @@ interface CallSummaryProps {
 
 type Stage = "fields" | "crm" | "sms" | "done";
 
+const SUCCESS = "#22A559";
+
 /** Treats blank / unknown values as "not captured". */
 function display(value: string | undefined | null): {
   text: string;
@@ -66,11 +68,11 @@ export function CallSummary({
   if (loading || !summary) {
     return (
       <div className="flex min-h-[420px] flex-col items-center justify-center gap-4 text-center">
-        <LoaderCircle className="h-10 w-10 animate-spin text-ember-500" />
-        <p className="text-lg font-medium text-white/80">
+        <LoaderCircle className="h-10 w-10 animate-spin text-ds-primary" />
+        <p className="font-jakarta text-lg font-semibold text-ds-heading">
           Analyzing the call…
         </p>
-        <p className="text-sm text-white/45">
+        <p className="font-jakarta text-sm text-ds-muted">
           Extracting the issue, system details, and appointment.
         </p>
       </div>
@@ -104,11 +106,16 @@ export function CallSummary({
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15">
-          <CircleCheckBig className="h-7 w-7 text-emerald-400" />
+        <div
+          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+          style={{ background: `${SUCCESS}1F` }}
+        >
+          <CircleCheckBig className="h-7 w-7" style={{ color: SUCCESS }} />
         </div>
-        <h2 className="text-2xl font-bold text-white">Call complete</h2>
-        <p className="mt-1 text-sm text-white/50">
+        <h2 className="font-jakarta text-2xl font-extrabold tracking-heading text-ds-heading">
+          Call complete
+        </h2>
+        <p className="mt-1 font-jakarta text-sm text-ds-muted">
           Here&apos;s what the AI receptionist captured and actioned.
         </p>
       </motion.div>
@@ -123,27 +130,30 @@ export function CallSummary({
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 + i * 0.18 }}
-              className="flex items-start gap-3 rounded-xl border border-white/10 bg-ink-850/80 px-4 py-3"
+              className="flex items-start gap-3 rounded-2xl border border-black/[0.06] bg-white px-4 py-3 shadow-[0_1px_8px_rgba(0,0,0,0.03)]"
             >
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ember-700/20">
-                <Icon className="h-4 w-4 text-ember-400" />
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ds-primary/[0.12]">
+                <Icon className="h-4 w-4 text-ds-primary-dark" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-white/40">
+                <p className="font-jakarta text-[10px] font-bold uppercase tracking-[0.12em] text-ds-primary-dark">
                   {row.label}
                 </p>
                 <p
                   className={
                     row.captured
-                      ? "text-sm text-white/90"
-                      : "text-sm italic text-white/35"
+                      ? "font-jakarta text-sm text-ds-heading"
+                      : "font-jakarta text-sm italic text-ds-subtle"
                   }
                 >
                   {row.text}
                 </p>
               </div>
               {row.captured && (
-                <CircleCheckBig className="mt-1 h-4 w-4 shrink-0 text-emerald-400/80" />
+                <CircleCheckBig
+                  className="mt-1 h-4 w-4 shrink-0"
+                  style={{ color: SUCCESS }}
+                />
               )}
             </motion.div>
           );
@@ -154,16 +164,16 @@ export function CallSummary({
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.15 + rows.length * 0.18 }}
-          className="flex items-start gap-3 rounded-xl border border-ember-500/40 bg-ember-700/15 px-4 py-3"
+          className="flex items-start gap-3 rounded-2xl border border-ds-primary/35 bg-ds-primary/[0.1] px-4 py-3"
         >
-          <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ember-600/30">
-            <CalendarCheck className="h-4 w-4 text-ember-300" />
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ds-primary/25">
+            <CalendarCheck className="h-4 w-4 text-ds-primary-dark" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-ember-300/80">
+            <p className="font-jakarta text-[10px] font-bold uppercase tracking-[0.12em] text-ds-primary-dark">
               Appointment booked
             </p>
-            <p className="text-sm font-semibold text-white">
+            <p className="font-jakarta text-sm font-bold text-ds-heading">
               {appointment.text}
             </p>
           </div>
@@ -171,19 +181,25 @@ export function CallSummary({
       </div>
 
       {/* Mock CRM + tech notification */}
-      <div className="mt-4 space-y-3">
+      <div className="mt-3 space-y-3">
         <AnimatePresence>
           {(stage === "crm" || stage === "sms" || stage === "done") && (
             <motion.div
               key="crm"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-white/10 bg-ink-850/80 p-4"
+              className="rounded-2xl border border-black/[0.06] bg-white p-4 shadow-[0_1px_8px_rgba(0,0,0,0.03)]"
             >
-              <div className="flex items-center gap-2 text-sm text-white/70">
+              <div className="flex items-center gap-2 font-jakarta text-sm font-semibold text-ds-text">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                  <span
+                    className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                    style={{ background: SUCCESS }}
+                  />
+                  <span
+                    className="relative inline-flex h-2 w-2 rounded-full"
+                    style={{ background: SUCCESS }}
+                  />
                 </span>
                 Pushed to ServiceTitan
               </div>
@@ -191,20 +207,31 @@ export function CallSummary({
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.25 }}
-                className="mt-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3"
+                className="mt-3 rounded-xl border p-3"
+                style={{
+                  borderColor: `${SUCCESS}40`,
+                  background: `${SUCCESS}0D`,
+                }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-emerald-300">
+                  <span
+                    className="font-mono text-xs font-semibold"
+                    style={{ color: "#1B7E45" }}
+                  >
                     NEW WORK ORDER
                   </span>
-                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[10px] text-emerald-300">
+                  <span
+                    className="rounded px-1.5 py-0.5 font-mono text-[10px] font-bold"
+                    style={{ background: `${SUCCESS}26`, color: "#1B7E45" }}
+                  >
                     DISPATCHED
                   </span>
                 </div>
-                <p className="mt-1.5 text-sm font-semibold text-white">
-                  {display(summary.customerName).text} — {display(summary.issue).text}
+                <p className="mt-1.5 font-jakarta text-sm font-bold text-ds-heading">
+                  {display(summary.customerName).text} —{" "}
+                  {display(summary.issue).text}
                 </p>
-                <p className="text-xs text-white/50">
+                <p className="font-jakarta text-xs text-ds-muted">
                   {appointment.text} · {display(summary.address).text}
                 </p>
               </motion.div>
@@ -218,19 +245,19 @@ export function CallSummary({
               key="sms"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-white/10 bg-ink-850/80 p-4"
+              className="rounded-2xl border border-black/[0.06] bg-white p-4 shadow-[0_1px_8px_rgba(0,0,0,0.03)]"
             >
-              <div className="flex items-center gap-2 text-sm text-white/70">
-                <MessageSquareText className="h-4 w-4 text-ember-400" />
+              <div className="flex items-center gap-2 font-jakarta text-sm font-semibold text-ds-text">
+                <MessageSquareText className="h-4 w-4 text-ds-primary-dark" />
                 Technician notified
               </div>
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25 }}
-                className="mt-3 max-w-[88%] rounded-2xl rounded-bl-sm bg-ink-700 p-3 text-sm text-white/85"
+                className="mt-3 max-w-[88%] rounded-2xl rounded-bl-sm border border-black/[0.06] bg-ds-surface p-3 font-jakarta text-sm text-ds-text"
               >
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">
+                <p className="mb-1 font-jakarta text-[10px] font-bold uppercase tracking-[0.12em] text-ds-primary-dark">
                   SMS to on-call tech
                 </p>
                 New job: {display(summary.customerName).text},{" "}
@@ -245,14 +272,24 @@ export function CallSummary({
       {/* Actions */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: stage === "done" ? 1 : 0.4 }}
+        animate={{ opacity: stage === "done" ? 1 : 0.45 }}
         className="mt-6 flex flex-col gap-3 sm:flex-row"
       >
-        <Button variant="primary" size="lg" className="flex-1" onClick={onRestart}>
+        <Button
+          variant="primary"
+          size="lg"
+          className="flex-1"
+          onClick={onRestart}
+        >
           <RotateCcw className="h-4 w-4" />
           {restartLabel}
         </Button>
-        <Button variant="secondary" size="lg" className="flex-1" onClick={onHome}>
+        <Button
+          variant="secondary"
+          size="lg"
+          className="flex-1"
+          onClick={onHome}
+        >
           <House className="h-4 w-4" />
           Back to demo home
         </Button>

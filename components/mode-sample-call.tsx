@@ -79,7 +79,6 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
     }, TICK_MS);
   }, [stopClock]);
 
-  // Tidy up the timer on unmount.
   useEffect(() => stopClock, [stopClock]);
 
   // Reaching the end of the recording transitions to the summary.
@@ -146,19 +145,21 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
       {/* Hidden audio element — swap the file for a real recording later. */}
       <audio ref={audioRef} src="/audio/sample-call.mp3" preload="auto" />
 
-      <div className="mb-5 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-ink-800 px-3 py-1 text-xs font-medium text-white/60">
+      <div className="mb-6 text-center">
+        <div className="sub-title mx-auto mb-4">
+          <span className="sub-title-dot" />
           Mode 2 · Recorded sample
-        </span>
-        <h2 className="mt-3 text-2xl font-bold text-white">
-          A real &ldquo;AC not cooling&rdquo; call, end to end
+        </div>
+        <h2 className="font-jakarta text-3xl font-extrabold tracking-heading text-ds-heading">
+          A real <span className="gradient-text">&ldquo;AC not cooling&rdquo;</span>{" "}
+          call
         </h2>
-        <p className="mt-1 text-sm text-white/50">
+        <p className="mx-auto mt-2 max-w-md font-jakarta text-sm text-ds-muted">
           Watch the AI triage the issue and book a same-day service appointment.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-ink-850/80 p-5 backdrop-blur-sm">
+      <div className="rounded-card border border-black/[0.06] bg-white p-5 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.2)]">
         <div className="flex justify-center pb-2">
           <AvatarOrb
             state={orbState}
@@ -174,11 +175,11 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
           />
         </div>
 
-        <div className="mt-2 h-[320px] rounded-xl border border-white/5 bg-ink-900/60 p-3">
+        <div className="mt-2 h-[320px] rounded-2xl border border-black/[0.05] bg-ds-surface p-3">
           {!started ? (
             <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-              <CirclePlay className="h-12 w-12 text-ember-500" />
-              <p className="max-w-xs text-sm text-white/50">
+              <CirclePlay className="h-12 w-12 text-ds-primary" />
+              <p className="max-w-xs font-jakarta text-sm text-ds-muted">
                 This is a pre-recorded example. The transcript types out in sync
                 as the call plays.
               </p>
@@ -193,7 +194,6 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
           <Button
             variant="primary"
             size="md"
-            className="!px-5"
             onClick={playing ? handlePause : handlePlay}
           >
             {playing ? (
@@ -208,14 +208,17 @@ export function ModeSampleCall({ onHome }: { onHome: () => void }) {
           </Button>
 
           <div className="flex flex-1 items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-700">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ds-primary/15">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-ember-400 to-ember-700"
+                className="h-full rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, #E5C463, #8C6F1E)",
+                }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.1, ease: "linear" }}
               />
             </div>
-            <span className="w-20 text-right font-mono text-xs tabular-nums text-white/50">
+            <span className="w-20 text-right font-mono text-xs tabular-nums text-ds-muted">
               {formatClock(elapsed)} / {formatClock(SAMPLE_CALL_DURATION)}
             </span>
           </div>

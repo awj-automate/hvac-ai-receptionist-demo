@@ -14,6 +14,7 @@ import type { RetellWebClient } from "retell-client-js-sdk";
 
 import { AvatarOrb } from "@/components/avatar-orb";
 import { CallSummary } from "@/components/call-summary";
+import { MagneticButton } from "@/components/magnetic-button";
 import { TranscriptView } from "@/components/transcript-view";
 import { Button } from "@/components/ui/button";
 import type {
@@ -251,23 +252,25 @@ export function ModeLiveCall({ retellConfigured, onHome }: ModeLiveCallProps) {
   if (view === "error" && error) {
     return (
       <div className="mx-auto w-full max-w-lg">
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/15">
-            <TriangleAlert className="h-6 w-6 text-red-400" />
+        <div className="rounded-card border border-red-500/25 bg-red-500/[0.05] p-6 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/[0.12]">
+            <TriangleAlert className="h-6 w-6 text-red-500" />
           </div>
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="font-jakarta text-lg font-extrabold tracking-heading text-ds-heading">
             {error.kind === "mic"
               ? "Microphone access needed"
               : "Connection problem"}
           </h3>
-          <p className="mt-1.5 text-sm text-white/55">{error.message}</p>
+          <p className="mt-1.5 font-jakarta text-sm text-ds-muted">
+            {error.message}
+          </p>
 
           {error.kind === "mic" && (
-            <div className="mt-4 rounded-xl border border-white/10 bg-ink-850 p-4 text-left text-sm text-white/65">
-              <p className="mb-2 font-semibold text-white/80">
+            <div className="mt-4 rounded-xl border border-black/[0.06] bg-white p-4 text-left font-jakarta text-sm text-ds-text">
+              <p className="mb-2 font-bold text-ds-heading">
                 To enable your microphone:
               </p>
-              <ol className="list-inside list-decimal space-y-1 text-white/55">
+              <ol className="list-inside list-decimal space-y-1 text-ds-muted">
                 <li>
                   Click the lock or camera icon in your browser&apos;s address
                   bar.
@@ -309,19 +312,23 @@ export function ModeLiveCall({ retellConfigured, onHome }: ModeLiveCallProps) {
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-5 flex items-center justify-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ember-500 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-ember-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ds-primary opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-ds-primary" />
           </span>
-          <span className="font-mono text-sm tabular-nums text-white/70">
+          <span className="font-mono text-sm tabular-nums text-ds-text">
             {connecting ? "Connecting…" : formatClock(elapsed)}
           </span>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-ink-850/80 p-5 backdrop-blur-sm">
+        <div className="rounded-card border border-black/[0.06] bg-white p-5 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.2)]">
           <div className="flex justify-center pb-2">
             <AvatarOrb
               state={
-                connecting ? "connecting" : aiSpeaking ? "speaking" : "listening"
+                connecting
+                  ? "connecting"
+                  : aiSpeaking
+                    ? "speaking"
+                    : "listening"
               }
               caption={
                 view === "requesting-mic"
@@ -335,11 +342,11 @@ export function ModeLiveCall({ retellConfigured, onHome }: ModeLiveCallProps) {
             />
           </div>
 
-          <div className="mt-2 h-[300px] rounded-xl border border-white/5 bg-ink-900/60 p-3">
+          <div className="mt-2 h-[300px] rounded-2xl border border-black/[0.05] bg-ds-surface p-3">
             {connecting ? (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <LoaderCircle className="h-7 w-7 animate-spin text-ember-500" />
-                <p className="text-sm text-white/50">
+                <LoaderCircle className="h-7 w-7 animate-spin text-ds-primary" />
+                <p className="font-jakarta text-sm text-ds-muted">
                   {view === "requesting-mic"
                     ? "Allow microphone access when your browser asks."
                     : "Setting up your call with Apex Heating & Air…"}
@@ -373,48 +380,53 @@ export function ModeLiveCall({ retellConfigured, onHome }: ModeLiveCallProps) {
   return (
     <div className="mx-auto w-full max-w-xl">
       {!retellConfigured && (
-        <div className="mb-5 flex items-start gap-3 rounded-xl border border-ember-500/30 bg-ember-700/10 p-4">
-          <Settings className="mt-0.5 h-5 w-5 shrink-0 text-ember-400" />
-          <div className="text-sm">
-            <p className="font-semibold text-ember-200">
+        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-ds-primary/30 bg-ds-primary/[0.08] p-4">
+          <Settings className="mt-0.5 h-5 w-5 shrink-0 text-ds-primary-dark" />
+          <div className="font-jakarta text-sm">
+            <p className="font-bold text-ds-primary-dark">
               Live calling needs setup
             </p>
-            <p className="mt-0.5 text-white/55">
-              Add <code className="text-ember-300">RETELL_API_KEY</code> and{" "}
-              <code className="text-ember-300">RETELL_AGENT_ID</code> to enable
-              Mode 1. See the README for the 5-minute Retell agent setup. Modes 2
-              and 3 work without any keys.
+            <p className="mt-0.5 text-ds-text">
+              Add <code className="font-mono text-ds-primary-dark">RETELL_API_KEY</code>{" "}
+              and{" "}
+              <code className="font-mono text-ds-primary-dark">
+                RETELL_AGENT_ID
+              </code>{" "}
+              to enable Mode 1. See the README for the 5-minute Retell agent
+              setup. Modes 2 and 3 work without any keys.
             </p>
           </div>
         </div>
       )}
 
-      <div className="rounded-2xl border border-white/10 bg-ink-850/80 p-8 text-center backdrop-blur-sm">
+      <div className="rounded-card border border-black/[0.06] bg-white p-8 text-center shadow-[0_18px_50px_-20px_rgba(0,0,0,0.2)]">
         <div className="flex justify-center pb-4">
           <AvatarOrb state="idle" />
         </div>
-        <h2 className="text-2xl font-bold text-white">
+        <h2 className="font-jakarta text-2xl font-extrabold tracking-heading text-ds-heading">
           Talk to Sarah, the AI receptionist
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-white/55">
+        <p className="mx-auto mt-2 max-w-md font-jakarta text-sm text-ds-muted">
           You&apos;re the homeowner. Call in with any HVAC problem — your AC
           quit, a strange noise, time for a tune-up — and let Sarah triage it
           and book the appointment.
         </p>
 
         <div className="mt-6 flex justify-center">
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={startCall}
-            disabled={!retellConfigured}
-          >
-            <Mic className="h-5 w-5" />
-            Talk to the AI Receptionist
-          </Button>
+          <MagneticButton strength={0.45}>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={startCall}
+              disabled={!retellConfigured}
+            >
+              <Mic className="h-5 w-5" />
+              Talk to the AI Receptionist
+            </Button>
+          </MagneticButton>
         </div>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-white/35">
+        <p className="mt-3 flex items-center justify-center gap-1.5 font-jakarta text-xs text-ds-subtle">
           <PhoneCall className="h-3.5 w-3.5" />
           Your browser will ask for microphone access.
         </p>

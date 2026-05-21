@@ -20,7 +20,7 @@ The demo has three modes:
 
 ## Live demo
 
-> **Live URL:** _TODO — paste the Vercel URL here after the first deploy._
+> **Live URL:** https://hvac-ai-receptionist-demo.vercel.app
 
 ## Tech stack
 

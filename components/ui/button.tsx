@@ -4,23 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/* Variants map to the datastaq-hvac button system (globals.css):
+   primary -> .btn-accent (gold), secondary -> .btn-light, dark -> .btn-dark.
+   Size utilities override the fixed height/padding baked into those classes. */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember-500/60 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button font-jakarta font-semibold tracking-body-tight transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary:
-          "bg-gradient-to-r from-ember-500 to-ember-700 text-white shadow-ember hover:shadow-ember-lg hover:brightness-110",
-        secondary:
-          "bg-ink-700 text-white hover:bg-ink-600 border border-white/10",
-        ghost: "text-white/70 hover:text-white hover:bg-white/5",
-        danger: "bg-red-600 text-white hover:bg-red-500",
+        primary: "btn-accent",
+        secondary: "btn-light",
+        dark: "btn-dark",
+        ghost: "text-ds-muted hover:bg-black/[0.04] hover:text-ds-heading",
         outline:
-          "border border-ember-500/40 text-ember-300 hover:bg-ember-500/10",
+          "border border-ds-primary/40 text-ds-primary-dark hover:border-ds-primary hover:bg-ds-primary/10",
+        danger:
+          "bg-[#D8473B] text-white shadow-[0_8px_16px_-4px_rgba(216,71,59,0.5)] hover:-translate-y-0.5 hover:brightness-105",
       },
       size: {
-        sm: "h-9 px-4",
-        md: "h-11 px-6",
+        sm: "h-9 px-4 text-[0.82rem]",
+        md: "h-11 px-6 text-[0.9rem]",
         lg: "h-14 px-8 text-base",
       },
     },

@@ -1,14 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CirclePlay,
-  Flame,
-  LayoutDashboard,
-  Mic,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, CirclePlay, LayoutDashboard, Mic } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 import { AirflowBackground } from "@/components/airflow-background";
@@ -19,13 +13,33 @@ import { ModeSampleCall } from "@/components/mode-sample-call";
 import { Button } from "@/components/ui/button";
 import type { DemoMode } from "@/lib/types";
 
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 interface DemoAppProps {
   retellConfigured: boolean;
 }
 
+function Brand() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <Image
+        src="/logo.png"
+        alt="DataStaq AI"
+        width={34}
+        height={34}
+        className="h-8 w-8 object-contain"
+        style={{ filter: "brightness(0)" }}
+        priority
+      />
+      <span className="font-jakarta text-lg font-extrabold tracking-heading text-ds-heading">
+        DataStaq<span className="gradient-text">AI</span>
+      </span>
+    </div>
+  );
+}
+
 export function DemoApp({ retellConfigured }: DemoAppProps) {
   const [mode, setMode] = useState<DemoMode>("home");
-
   const goHome = () => setMode("home");
 
   const modeCards = [
@@ -61,35 +75,36 @@ export function DemoApp({ retellConfigured }: DemoAppProps) {
   return (
     <>
       <AirflowBackground />
-      <div className="relative mx-auto min-h-screen w-full max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
-        {/* Brand bar — shown in mode views with a back button */}
-        <AnimatePresence mode="wait">
-          {mode !== "home" && (
-            <motion.div
-              key="bar"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mb-8 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-ember-500 to-ember-700">
-                  <Flame className="h-5 w-5 text-white" />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-sm font-bold text-white">
-                    Apex Heating &amp; Air
-                  </p>
-                  <p className="text-xs text-white/45">AI Receptionist Demo</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" onClick={goHome}>
-                <ArrowLeft className="h-4 w-4" />
-                Back to demo home
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="relative mx-auto min-h-screen w-full max-w-content px-5 py-7 sm:px-8 sm:py-10">
+        {/* Top bar */}
+        <div className="mb-8 flex items-center justify-between">
+          <Brand />
+          <AnimatePresence mode="wait">
+            {mode === "home" ? (
+              <motion.span
+                key="tag"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="hidden font-jakarta text-sm font-medium text-ds-muted sm:block"
+              >
+                HVAC AI Receptionist · Live Demo
+              </motion.span>
+            ) : (
+              <motion.div
+                key="back"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <Button variant="ghost" size="sm" onClick={goHome}>
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to demo home
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <AnimatePresence mode="wait">
           {mode === "home" ? (
@@ -104,20 +119,33 @@ export function DemoApp({ retellConfigured }: DemoAppProps) {
 
               {/* Hero */}
               <div className="mx-auto max-w-3xl pt-6 text-center sm:pt-12">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-ember-500/25 bg-ember-700/10 px-3.5 py-1.5">
-                  <Flame className="h-3.5 w-3.5 text-ember-400" />
-                  <span className="text-xs font-medium text-ember-200">
-                    Apex Heating &amp; Air · AI Receptionist
-                  </span>
-                </div>
-                <h1 className="text-balance text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: EASE }}
+                  className="sub-title mx-auto mb-6"
+                >
+                  <span className="sub-title-dot" />
+                  AI Receptionist · Apex Heating &amp; Air
+                </motion.div>
+                <motion.h1
+                  initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+                  className="font-jakarta text-[2.6rem] font-extrabold leading-[1.06] tracking-heading-tight text-ds-heading sm:text-6xl"
+                >
                   Hear the AI Receptionist Answer a{" "}
-                  <span className="text-ember-gradient">Real HVAC Call</span>
-                </h1>
-                <p className="mx-auto mt-5 max-w-xl text-balance text-base text-white/55 sm:text-lg">
+                  <span className="gradient-text-flow">Real HVAC Call</span>
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.7, ease: EASE, delay: 0.25 }}
+                  className="mx-auto mt-5 max-w-xl font-jakarta text-base tracking-body-tight text-ds-muted sm:text-lg"
+                >
                   This is what your prospects experience when they call your
                   business. Click below to try it yourself.
-                </p>
+                </motion.p>
               </div>
 
               {/* Mode cards */}
@@ -129,43 +157,48 @@ export function DemoApp({ retellConfigured }: DemoAppProps) {
                       key={card.id}
                       type="button"
                       onClick={() => setMode(card.id)}
-                      initial={{ opacity: 0, y: 18 }}
+                      initial={{ opacity: 0, y: 22 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15 + i * 0.12 }}
-                      whileHover={{ y: -6 }}
-                      className="group relative flex flex-col rounded-2xl border border-white/10 bg-ink-850/80 p-6 text-left backdrop-blur-sm transition-colors hover:border-ember-500/40 hover:shadow-ember"
+                      whileHover={{ y: -4 }}
+                      transition={{ delay: 0.35 + i * 0.12, ease: EASE }}
+                      className="card group relative flex flex-col overflow-hidden p-6 text-left"
                     >
-                      <div className="mb-5 flex items-center justify-between">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-ember-500 to-ember-700 shadow-ember">
-                          <Icon className="h-6 w-6 text-white" />
+                      {/* Faint background number */}
+                      <span className="pointer-events-none absolute -bottom-6 right-3 select-none font-jakarta text-[120px] font-bold leading-none text-ds-surface">
+                        {card.number}
+                      </span>
+
+                      <div className="relative z-10 flex flex-1 flex-col">
+                        <div className="icon-box mb-5">
+                          <Icon className="h-5 w-5" />
                         </div>
-                        <span className="font-mono text-3xl font-bold text-white/10 transition-colors group-hover:text-ember-500/30">
-                          {card.number}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-bold text-white">
-                        {card.title}
-                      </h3>
-                      <p className="mt-1.5 flex-1 text-sm leading-relaxed text-white/50">
-                        {card.description}
-                      </p>
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="rounded-full border border-white/10 bg-ink-800 px-2.5 py-1 text-[11px] font-medium text-white/55">
-                          {card.badge}
-                        </span>
-                        <span className="flex items-center gap-1 text-sm font-semibold text-ember-400">
-                          Open
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </span>
+                        <h3 className="font-jakarta text-lg font-bold tracking-heading text-ds-heading">
+                          {card.title}
+                        </h3>
+                        <p className="mt-1.5 flex-1 font-jakarta text-sm leading-relaxed text-ds-muted">
+                          {card.description}
+                        </p>
+                        <div className="mt-5 flex items-center justify-between">
+                          <span className="rounded-full border border-ds-primary/20 bg-ds-primary/[0.08] px-2.5 py-1 font-jakarta text-[11px] font-semibold text-ds-primary-dark">
+                            {card.badge}
+                          </span>
+                          <span className="flex items-center gap-1 font-jakarta text-sm font-bold text-ds-primary-dark">
+                            Open
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </span>
+                        </div>
                       </div>
                     </motion.button>
                   );
                 })}
               </div>
 
-              <p className="mt-12 text-center text-xs text-white/30">
-                Voice AI powered by Retell · A DataStaq AI demo
-              </p>
+              <div className="mt-12 flex flex-col items-center gap-3">
+                <div className="section-divider max-w-xs" />
+                <p className="font-jakarta text-xs text-ds-subtle">
+                  Voice AI powered by Retell · A DataStaq AI demo
+                </p>
+              </div>
             </motion.div>
           ) : (
             <motion.div
