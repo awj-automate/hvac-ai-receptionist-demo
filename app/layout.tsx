@@ -23,14 +23,8 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "DataStaq AI",
   },
-  icons: {
-    icon: [
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  // Icons are auto-wired by Next from app/favicon.ico, app/icon.svg and
+  // app/apple-icon.png (content-hashed URLs — no stale-cache issues).
 };
 
 export default function RootLayout({
